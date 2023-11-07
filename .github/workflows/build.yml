@@ -8,7 +8,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
@@ -20,6 +20,12 @@ jobs:
           submodules: true
       - name: Initialize lfs
         run: git lfs pull
+      - name: WORKAROUND FOR https://github.com/actions/runner-images/issues/8659
+        run: |
+          echo "TEMPORARY WORKAROUND FOR GITHUB RUNNER BUG #8659\n\nRemoving GCC 13 as it breaks Clang14"
+          sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
+          sudo apt-get update
+          sudo apt-get install -y --allow-downgrades libc6=2.35-0ubuntu3.4 libc6-dev=2.35-0ubuntu3.4 libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
